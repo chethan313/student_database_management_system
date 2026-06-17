@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Management System</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+    background:#f4f7fc;
+    min-height:100vh;
+}
+
+.container{
+    width:95%;
+    max-width:1400px;
+    margin:20px auto;
+}
+
+.header{
+    background:linear-gradient(135deg,#2563eb,#1e3a8a);
+    color:white;
+    padding:25px;
+    border-radius:15px;
+    text-align:center;
+    margin-bottom:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.15);
+}
+
+.header h1{
+    font-size:32px;
+}
+
+.button-group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.btn{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:.3s;
+    font-weight:600;
+}
+
+.btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+.form-box{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.form-box h3{
+    margin-bottom:15px;
+    color:#1e293b;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:15px;
+}
+
+input,select{
+    width:100%;
+    padding:12px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    outline:none;
+}
+
+input:focus,
+select:focus{
+    border-color:#2563eb;
+}
+
+.search-box{
+    margin-top:15px;
+}
+
+.table-container{
+    background:white;
+    padding:15px;
+    border-radius:15px;
+    overflow-x:auto;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:12px;
+    text-align:center;
+}
+
+tr:nth-child(even){
+    background:#f8fafc;
+}
+
+.loader{
+    display:none;
+    text-align:center;
+    padding:20px;
+    font-size:18px;
+    font-weight:bold;
+    color:#2563eb;
+}
+
+@media(max-width:768px){
+
+    .header h1{
+        font-size:24px;
+    }
+
+    .btn{
+        width:100%;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Student Management System</h1>
+        <p>Manage Students, Courses & Reports</p>
+    </div>
+
+    <div class="button-group">
+        <button class="btn" onclick="loadStudents()">Show Students</button>
+        <button class="btn" onclick="loadCourses()">Show Courses</button>
+        <button class="btn" onclick="loadReport()">Show Report</button>
+    </div>
+
+    <div class="form-box">
+        <h3>Add Student</h3>
+
+        <div class="form-grid">
+
+            <input type="text" id="roll_no" placeholder="Roll Number">
+
+            <input type="text" id="full_name" placeholder="Full Name">
+
+            <select id="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <input type="date" id="dob">
+
+            <input type="text" id="phone" placeholder="Phone">
+
+            <input type="email" id="email" placeholder="Email">
+
+            <input type="text" id="address" placeholder="Address">
+
+            <input type="number" id="admission_year" placeholder="Admission Year">
+
+        </div>
+
+        <br>
+
+        <button class="btn" onclick="addStudent()">Add Student</button>
+    </div>
+
+    <div class="form-box">
+        <h3>Update Student Address</h3>
+
+        <div class="form-grid">
+            <input type="text" id="update_id" placeholder="Roll No or Student ID">
+            <input type="text" id="update_address" placeholder="New Address">
+        </div>
+
+        <br>
+
+        <button class="btn" onclick="updateStudent()">Update Student</button>
+    </div>
+
+    <div class="form-box">
+        <h3>Delete Student</h3>
+
+        <div class="form-grid">
+            <input type="text" id="delete_id" placeholder="Roll No or Student ID">
+        </div>
+
+        <br>
+
+        <button class="btn" onclick="deleteStudent()">Delete Student</button>
+    </div>
+
+    <div class="search-box">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search Data..."
+            onkeyup="filterTable()">
+    </div>
+
+    <div class="loader" id="loader">
+        Loading Data...
+    </div>
+
+    <div id="output"></div>
+
+</div>
+
+<script>
+
+function showLoader(){
+    document.getElementById("loader").style.display="block";
+}
+
+function hideLoader(){
+    document.getElementById("loader").style.display="none";
+}
+
+async function loadStudents(){
+
+    showLoader();
+
+    try{
+
+        const res=await fetch("/students");
+
+        const data=await res.json();
+
+        displayTable(data);
+
+    }catch(err){
+
+        document.getElementById("output").innerHTML=
+        "<h3 style='color:red'>Failed to load students</h3>";
+
+    }
+
+    hideLoader();
+}
+
+async function loadCourses(){
+
+    showLoader();
+
+    try{
+
+        const res=await fetch("/courses");
+
+        const data=await res.json();
+
+        displayTable(data);
+
+    }catch(err){
+
+        document.getElementById("output").innerHTML=
+        "<h3 style='color:red'>Failed to load courses</h3>";
+
+    }
+
+    hideLoader();
+}
+
+async function loadReport(){
+
+    showLoader();
+
+    try{
+
+        const res=await fetch("/report");
+
+        const data=await res.json();
+
+        displayTable(data);
+
+    }catch(err){
+
+        document.getElementById("output").innerHTML=
+        "<h3 style='color:red'>Failed to load report</h3>";
+
+    }
+
+    hideLoader();
+}
+
+function displayTable(data){
+
+    if(data.length===0){
+
+        document.getElementById("output").innerHTML=
+        "<h3>No Data Found</h3>";
+
+        return;
+    }
+
+    let table="<div class='table-container'><table><tr>";
+
+    Object.keys(data[0]).forEach(key=>{
+        table+=`<th>${key}</th>`;
+    });
+
+    table+="</tr>";
+
+    data.forEach(row=>{
+
+        table+="<tr>";
+
+        Object.values(row).forEach(value=>{
+
+            table+=`<td>${value ?? ""}</td>`;
+
+        });
+
+        table+="</tr>";
+    });
+
+    table+="</table></div>";
+
+    document.getElementById("output").innerHTML=table;
+}
+
+function filterTable(){
+
+    let input=document.getElementById("searchInput")
+    .value.toLowerCase();
+
+    let rows=document.querySelectorAll("table tr");
+
+    rows.forEach((row,index)=>{
+
+        if(index===0) return;
+
+        row.style.display=
+        row.innerText.toLowerCase().includes(input)
+        ? ""
+        : "none";
+    });
+}
+
+async function addStudent(){
+
+    const student={
+
+        roll_no:document.getElementById("roll_no").value,
+
+        full_name:document.getElementById("full_name").value,
+
+        gender:document.getElementById("gender").value,
+
+        dob:document.getElementById("dob").value,
+
+        phone:document.getElementById("phone").value,
+
+        email:document.getElementById("email").value,
+
+        address:document.getElementById("address").value,
+
+        admission_year:document.getElementById("admission_year").value
+    };
+
+    const res=await fetch("/students",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify(student)
+
+    });
+
+    const result=await res.json();
+
+    alert(result.message || result.error);
+
+    loadStudents();
+}
+
+async function updateStudent(){
+
+    const key=document.getElementById("update_id").value;
+
+    const address=document.getElementById("update_address").value;
+
+    const isNumeric=/^\d+$/.test(key);
+
+    const url=isNumeric
+    ? `/students/${key}`
+    : `/students/rollno/${key}`;
+
+    const res=await fetch(url,{
+
+        method:"PUT",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({address})
+    });
+
+    const result=await res.json();
+
+    alert(result.message || result.error);
+
+    loadStudents();
+}
+
+async function deleteStudent(){
+
+    const key=document.getElementById("delete_id").value;
+
+    const isNumeric=/^\d+$/.test(key);
+
+    const url=isNumeric
+    ? `/students/${key}`
+    : `/students/rollno/${key}`;
+
+    const res=await fetch(url,{
+        method:"DELETE"
+    });
+
+    const result=await res.json();
+
+    alert(result.message || result.error);
+
+    loadStudents();
+}
+
+window.onload=loadStudents;
+
+</script>
+
+</body>
+</html>
