@@ -224,4 +224,4 @@ This project demonstrates:
 
 **Chethan P S**
 
-Student Management System developed as a Database Management System (DBMS) academic project to demonstrate practical implementation of relational database concepts, SQL operations, and full-stack web development and it is a useful skill.
+Student Management System developed as a Database Management System (DBMS) academic project to demonstrate practical implementation of relational database concepts, SQL operations,Joins, and full-stack web development and it is a useful skill.
